@@ -1,0 +1,34 @@
+name: Autograding Tests
+'on':
+- workflow_dispatch
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Test 1
+      id: test-1
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: Test 1
+        setup-command: g++ Lab10.cpp -o Lab10
+        command: "./Lab10"
+        input: '17'
+        expected-output: 'The hailstones are: 52, 26, 13, 40, 20, 10, 5, 16, 8, 4,
+          2, 1,'
+        comparison-method: contains
+        timeout: 1
+        max-score: 10
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        TEST-1_RESULTS: "${{steps.test-1.outputs.result}}"
+      with:
+        runners: test-1
